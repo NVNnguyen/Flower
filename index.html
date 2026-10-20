@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Gửi Hoàng Yến – 20/10 💐</title>
+  <meta name="theme-color" content="#f6c6d6" />
+
+  <!-- Font chữ: Dancing Script (viết tay) + Be Vietnam Pro (nội dung tiếng Việt) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Be+Vietnam+Pro:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- ===== ẢNH NỀN + LỚP PHỦ GRADIENT (đổi ảnh trong style.css, mục .bg) ===== -->
+  <div class="bg" aria-hidden="true">
+    <!-- Lưới ảnh nhỏ: script.js tự thêm ảnh theo danh sách PHOTOS -->
+    <div class="bg__grid" id="bgGrid"></div>
+  </div>
+
+  <!-- ===== LỚP CÁNH HOA / TRÁI TIM RƠI (script.js tự thêm vào) ===== -->
+  <div class="petals" id="petals" aria-hidden="true"></div>
+
+  <!-- ===== CANVAS PHÁO HOA KHI MỞ QUÀ ===== -->
+  <canvas class="fireworks" id="fireworks" aria-hidden="true"></canvas>
+
+  <!-- ===== TẤM THIỆP CHÍNH ===== -->
+  <main class="card" id="card">
+    <!-- BÌA THIỆP: chạm vào để lật mở -->
+    <button class="cover" id="cover" type="button" aria-expanded="false" aria-controls="inside">
+      <span class="cover__to">EM IU ✿ ❤ ✿</span>
+      <span class="cover__date">20/10</span>
+      <span class="cover__title">Ngày Phụ nữ Việt Nam</span>
+      <span class="cover__deco" aria-hidden="true">✿ ❤ ✿</span>
+      <span class="cover__hint">Chạm để mở thiệp 💌</span>
+    </button>
+
+    <!-- RUỘT THIỆP: hiện ra sau khi mở bìa -->
+    <div class="card__inside" id="inside" inert>
+    <p class="card__to">Gửi <strong>Hoàng Yến</strong> <span class="card__nick">(em iu)</span></p>
+
+    <h1 class="card__title">
+      Chúc mừng ngày<br />Phụ nữ Việt Nam
+      <span class="card__date">20/10</span>
+    </h1>
+
+    <div class="card__divider" aria-hidden="true">✿ ❤ ✿</div>
+
+    <!-- LỜI CHÚC: sửa nội dung trong thẻ <p> này, hiệu ứng đánh máy sẽ tự chạy -->
+    <p class="card__wish" id="wish">Chúc em ngày 20/10 vui vẻ, lúc nào cũng đẹp nhất. Nào anh lên SG bù cho iu nha❤❤❤❤❤ Anh nhớ em quá.</p>
+
+    <!-- NÚT MỞ QUÀ -->
+    <button class="gift-btn" id="giftBtn" type="button">Mở quà 🎁</button>
+
+    <!-- MÓN QUÀ + LỜI NHẮN BÍ MẬT: hiện ra sau khi bấm "Mở quà" -->
+    <div class="secret" id="secret" aria-live="polite">
+
+      <!-- BÓ HOA LY (vẽ bằng SVG, đổi màu cánh hoa ở các <linearGradient> bên dưới) -->
+      <figure class="bouquet">
+        <svg viewBox="0 0 240 290" role="img" aria-label="Bó hoa ly hồng tặng em">
+          <defs>
+            <!-- Màu cánh hoa: tâm hồng đậm → mép trắng -->
+            <linearGradient id="petalFront" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="-54">
+              <stop offset="0" stop-color="#e8476f" />
+              <stop offset=".35" stop-color="#f6a0b8" />
+              <stop offset=".75" stop-color="#fff0f5" />
+              <stop offset="1" stop-color="#ffffff" />
+            </linearGradient>
+            <linearGradient id="petalBack" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="-54">
+              <stop offset="0" stop-color="#c72c58" />
+              <stop offset=".45" stop-color="#ee7f9f" />
+              <stop offset="1" stop-color="#ffd9e5" />
+            </linearGradient>
+            <linearGradient id="budGrad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="-44">
+              <stop offset="0" stop-color="#6fa865" />
+              <stop offset=".55" stop-color="#f4b6cb" />
+              <stop offset="1" stop-color="#e8476f" />
+            </linearGradient>
+            <linearGradient id="paper" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#fde4ec" />
+              <stop offset="1" stop-color="#f4a9c0" />
+            </linearGradient>
+
+            <!-- Một cánh hoa ly (nhọn, dài) -->
+            <path id="petal" d="M0 0 C-15 -12 -14 -38 0 -54 C14 -38 15 -12 0 0Z" />
+            <!-- Gân và chấm đặc trưng trên cánh hoa ly -->
+            <g id="marks" fill="#9e1846">
+              <path d="M0 -6 L0 -42" stroke="#fff" stroke-opacity=".7" stroke-width="1" />
+              <circle cx="-3" cy="-12" r="1" /><circle cx="3" cy="-16" r="1.1" />
+              <circle cx="-2.5" cy="-21" r=".9" /><circle cx="2" cy="-9" r=".8" />
+            </g>
+            <!-- Nhị hoa -->
+            <g id="stamen">
+              <path d="M0 0 Q3 -15 0 -30" stroke="#d8e8a0" stroke-width="1.3" fill="none" />
+              <ellipse cx="0" cy="-31" rx="4.5" ry="1.8" fill="#b5562a" />
+            </g>
+
+            <!-- Một bông hoa ly hoàn chỉnh: 3 cánh sau + 3 cánh trước + nhị -->
+            <g id="lily">
+              <g fill="url(#petalBack)">
+                <use href="#petal" transform="rotate(30)" />
+                <use href="#petal" transform="rotate(150)" />
+                <use href="#petal" transform="rotate(270)" />
+              </g>
+              <g fill="url(#petalFront)" stroke="#fff" stroke-width=".6">
+                <use href="#petal" transform="rotate(90)" />
+                <use href="#petal" transform="rotate(210)" />
+                <use href="#petal" transform="rotate(330)" />
+              </g>
+              <use href="#marks" transform="rotate(30)" /><use href="#marks" transform="rotate(90)" />
+              <use href="#marks" transform="rotate(150)" /><use href="#marks" transform="rotate(210)" />
+              <use href="#marks" transform="rotate(270)" /><use href="#marks" transform="rotate(330)" />
+              <use href="#stamen" transform="rotate(20)" /><use href="#stamen" transform="rotate(80)" />
+              <use href="#stamen" transform="rotate(140)" /><use href="#stamen" transform="rotate(200)" />
+              <use href="#stamen" transform="rotate(260)" /><use href="#stamen" transform="rotate(320)" />
+              <circle r="3" fill="#cfe39a" />
+            </g>
+
+            <!-- Nụ hoa ly -->
+            <path id="bud" d="M0 0 C-8 -10 -7 -30 0 -44 C7 -30 8 -10 0 0Z" fill="url(#budGrad)" />
+            <!-- Lá -->
+            <path id="leaf" d="M0 0 C8 -20 10 -45 2 -70 C-6 -45 -6 -20 0 0Z" fill="#5f9e57" />
+          </defs>
+
+          <!-- Giấy gói phía sau -->
+          <path d="M38 150 L202 150 L142 274 L98 274 Z" fill="#fff6f9" stroke="#f4b6cb" />
+
+          <!-- Cành hoa -->
+          <g stroke="#4f8a46" stroke-width="3" fill="none" stroke-linecap="round">
+            <path d="M120 250 Q120 160 120 72" />
+            <path d="M118 250 Q100 170 68 108" /><path d="M122 250 Q140 170 172 104" />
+            <path d="M118 250 Q108 200 98 150" /><path d="M122 250 Q134 200 150 152" />
+            <path d="M116 250 Q80 190 48 140" /><path d="M124 250 Q160 190 194 136" />
+          </g>
+
+          <!-- Lá -->
+          <use href="#leaf" transform="translate(104 210) rotate(-35)" />
+          <use href="#leaf" transform="translate(136 210) rotate(35)" />
+          <use href="#leaf" transform="translate(96 222) rotate(-62)" />
+          <use href="#leaf" transform="translate(144 222) rotate(62)" />
+
+          <!-- Giấy gói phía trước -->
+          <path d="M55 176 L120 160 L185 176 L138 276 L102 276 Z" fill="url(#paper)" stroke="#fff" stroke-width="1.5" />
+          <path d="M120 160 L112 276" stroke="#fff" stroke-opacity=".6" />
+
+          <!-- Nụ hoa (--d: thời gian chờ trước khi nở) -->
+          <g transform="translate(48 140) rotate(-28)"><g class="bloom" style="--d:.15s"><use href="#bud" /></g></g>
+          <g transform="translate(194 136) rotate(28)"><g class="bloom" style="--d:.25s"><use href="#bud" /></g></g>
+
+          <!-- Các bông hoa ly -->
+          <g transform="translate(98 150) scale(.7) rotate(-8)"><g class="bloom" style="--d:.35s"><use href="#lily" /></g></g>
+          <g transform="translate(150 152) scale(.72) rotate(12)"><g class="bloom" style="--d:.5s"><use href="#lily" /></g></g>
+          <g transform="translate(68 108) scale(.8) rotate(-20)"><g class="bloom" style="--d:.65s"><use href="#lily" /></g></g>
+          <g transform="translate(172 104) scale(.82) rotate(18)"><g class="bloom" style="--d:.8s"><use href="#lily" /></g></g>
+          <g transform="translate(120 72) scale(.95)"><g class="bloom" style="--d:1s"><use href="#lily" /></g></g>
+
+          <!-- Nơ vàng kim -->
+          <g fill="#e9c77b" stroke="#c9a24f" stroke-width="1">
+            <path d="M118 232 L100 262 L108 262 L120 238 Z" />
+            <path d="M122 232 L140 262 L132 262 L120 238 Z" />
+            <ellipse cx="104" cy="228" rx="16" ry="8" transform="rotate(-18 104 228)" />
+            <ellipse cx="136" cy="228" rx="16" ry="8" transform="rotate(18 136 228)" />
+            <circle cx="120" cy="231" r="6" />
+          </g>
+        </svg>
+        <figcaption class="bouquet__caption">Tặng em một bó hoa ly 🌸</figcaption>
+      </figure>
+
+      <p class="secret__label">💌 Lời nhắn bí mật</p>
+      <p class="secret__text">Bó hoa này không bao giờ héo, nên em cứ giữ bao lâu cũng được nha iuu!😄</p>
+    </div>
+
+    <!-- CHỮ KÝ NGƯỜI GỬI -->
+    <p class="card__from">iuuuu em,<br /><span class="card__sign"></span></p>
+    </div>
+  </main>
+
+  <!-- ===== NÚT NHẠC NỔI GÓC PHẢI DƯỚI ===== -->
+  <div class="music" id="music">
+    <div class="music__title" aria-hidden="true">
+      <span class="music__marquee">♪ Cơn Mưa Tình Yêu ♪</span>
+    </div>
+    <button class="music__btn" id="musicBtn" type="button" aria-label="Bật nhạc" aria-pressed="false">
+      <!-- Icon đĩa nhạc (xoay khi đang phát) -->
+      <svg class="music__disc" viewBox="0 0 48 48" aria-hidden="true">
+        <circle cx="24" cy="24" r="22" fill="#2b1a22" />
+        <circle cx="24" cy="24" r="17" fill="none" stroke="#5a3a48" stroke-width="1" />
+        <circle cx="24" cy="24" r="13" fill="none" stroke="#5a3a48" stroke-width="1" />
+        <circle cx="24" cy="24" r="8" fill="#e8476f" />
+        <circle cx="24" cy="24" r="2.2" fill="#fff" />
+        <path d="M10 16 A16 16 0 0 1 20 8.5" stroke="#ffffff55" stroke-width="2" fill="none" stroke-linecap="round" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- File nhạc: đặt "con-mua-tinh-yeu.mp3" cùng thư mục với index.html -->
+  <audio id="bgm" src="con-mua-tinh-yeu.mp3" loop preload="none"></audio>
+
+  <script src="script.js"></script>
+</body>
+</html>

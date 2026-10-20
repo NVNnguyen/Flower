@@ -1,0 +1,490 @@
+/* =========================================================
+   1. BẢNG MÀU & BIẾN CHUNG – đổi màu ở đây là đổi toàn trang
+   ========================================================= */
+:root {
+  --pink-powder: #f8c8d8;   /* hồng phấn */
+  --pink-soft: #fde4ec;
+  --rose: #e8476f;          /* đỏ hồng */
+  --rose-deep: #c72c58;
+  --white: #ffffff;
+  --gold: #e9c77b;          /* vàng kim nhạt */
+  --gold-deep: #c9a24f;
+  --text: #4a2233;
+
+  --font-script: "Dancing Script", cursive;
+  --font-body: "Be Vietnam Pro", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { min-height: 100%; }
+
+body {
+  font-family: var(--font-body);
+  color: var(--text);
+  /* Nền dự phòng phòng khi ảnh chưa tải */
+  background: linear-gradient(135deg, #fbd3e0, #e6cdf3);
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px 110px; /* chừa chỗ cho nút nhạc ở dưới */
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* =========================================================
+   2. ẢNH NỀN DẠNG LƯỚI ~20 ẢNH NHỎ + LỚP PHỦ
+   - Danh sách ảnh nằm ở biến PHOTOS trong script.js.
+   - Điện thoại dọc: 4 cột × 5 hàng; màn hình ngang: 5 cột × 4 hàng.
+   - Dùng lớp position: fixed để nền đứng yên khi cuộn (kể cả iPhone).
+   - Ảnh nào lỗi/chưa có thì ô đó hiện màu hồng, không bị trắng trang.
+   ========================================================= */
+.bg {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+  background: linear-gradient(135deg, #fbd3e0 0%, #f4b6cb 40%, #dcc3f0 100%);
+}
+
+.bg__grid {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: clamp(6px, 1.4vw, 14px);
+  padding: clamp(6px, 1.4vw, 14px);
+}
+
+/* Một ảnh nhỏ kiểu ảnh polaroid, hơi nghiêng */
+.bg__tile {
+  background: #f8c8d8 center / cover no-repeat;
+  border: clamp(2px, .5vw, 5px) solid rgba(255, 255, 255, 0.9);
+  border-radius: 10px;
+  box-shadow: 0 6px 14px rgba(74, 34, 51, 0.25);
+  transform: rotate(var(--r, 0deg));
+  animation: tile-in .8s ease var(--d, 0s) both;
+}
+@keyframes tile-in {
+  from { opacity: 0; transform: scale(.8) rotate(var(--r, 0deg)); }
+  to   { opacity: 1; transform: rotate(var(--r, 0deg)); }
+}
+
+/* Điện thoại dọc: 4 cột × 5 hàng */
+@media (max-aspect-ratio: 1/1) {
+  .bg__grid {
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+  }
+}
+
+/* Lớp phủ hồng nhạt – tím pastel bán trong suốt giúp chữ dễ đọc */
+.bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    160deg,
+    rgba(255, 192, 214, 0.55) 0%,
+    rgba(248, 200, 216, 0.35) 45%,
+    rgba(200, 170, 235, 0.55) 100%
+  );
+}
+
+/* =========================================================
+   3. TẤM THIỆP KÍNH MỜ (glassmorphism)
+   ========================================================= */
+.card {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 520px;
+  padding: clamp(28px, 7vw, 48px) clamp(20px, 6vw, 44px);
+  text-align: center;
+  background: rgba(255, 255, 255, 0.28);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 32px;
+  box-shadow:
+    0 20px 50px rgba(199, 44, 88, 0.18),
+    0 4px 14px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  /* Hiệu ứng xuất hiện: mờ dần + phóng nhẹ */
+  animation: card-in 1.1s cubic-bezier(.2, .8, .2, 1) both;
+}
+
+/* Trình duyệt không hỗ trợ blur thì cho nền thiệp đậm hơn */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .card { background: rgba(255, 240, 246, 0.88); }
+}
+
+@keyframes card-in {
+  from { opacity: 0; transform: scale(.92) translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ---------- Bìa thiệp (lật mở khi chạm) ---------- */
+.card { perspective: 1600px; }
+
+.cover {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 28px 20px;
+  font-family: var(--font-body);
+  color: var(--white);
+  text-align: center;
+  background: linear-gradient(150deg, #f6a0b8 0%, var(--rose) 55%, var(--rose-deep) 100%);
+  border: 0;
+  border-radius: inherit;
+  box-shadow: 0 20px 50px rgba(199, 44, 88, 0.35);
+  cursor: pointer;
+  transform-origin: left center;
+  backface-visibility: hidden;
+  transition: transform 1.1s cubic-bezier(.6, .05, .3, 1), opacity .35s ease .8s;
+}
+.cover[hidden] { display: none; }
+.cover:focus-visible { outline: 3px solid var(--gold); outline-offset: 4px; }
+
+/* Khung viền vàng kim bên trong bìa */
+.cover::before {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border: 1.5px solid rgba(233, 199, 123, 0.9);
+  border-radius: calc(32px - 12px);
+  pointer-events: none;
+}
+.cover__to { font-size: .95rem; letter-spacing: .08em; opacity: .95; }
+.cover__date {
+  font-family: var(--font-script);
+  font-weight: 700;
+  font-size: clamp(4.2rem, 22vw, 6.5rem);
+  line-height: 1;
+  background: linear-gradient(180deg, #fff3cf, var(--gold) 60%, var(--gold-deep));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 3px 4px rgba(120, 20, 50, 0.35));
+}
+.cover__title { font-family: var(--font-script); font-size: clamp(1.6rem, 7vw, 2.1rem); }
+.cover__deco { margin-top: 4px; color: var(--gold); letter-spacing: .5em; }
+.cover__hint {
+  margin-top: 22px;
+  padding: 8px 18px;
+  font-size: .85rem;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.15);
+  animation: hint 1.8s ease-in-out infinite;
+}
+@keyframes hint { 50% { opacity: .55; transform: scale(.97); } }
+
+/* Khi mở: bìa lật sang trái và mờ đi, ruột thiệp hiện ra */
+.card.open .cover { transform: rotateY(-170deg); opacity: 0; pointer-events: none; }
+.card__inside { opacity: 0; transition: opacity .8s ease .45s; }
+.card.open .card__inside { opacity: 1; }
+
+/* Người nhận */
+.card__to {
+  font-size: .95rem;
+  letter-spacing: .02em;
+  color: var(--rose-deep);
+}
+.card__to strong { font-weight: 600; }
+.card__nick { font-style: italic; opacity: .8; }
+
+/* Tiêu đề viết tay */
+.card__title {
+  margin: 10px 0 6px;
+  font-family: var(--font-script);
+  font-weight: 700;
+  font-size: clamp(2.1rem, 9vw, 3.1rem);
+  line-height: 1.15;
+  color: var(--rose);
+  text-shadow: 0 2px 0 rgba(255, 255, 255, 0.6), 0 6px 18px rgba(232, 71, 111, 0.25);
+}
+.card__date {
+  display: block;
+  margin-top: 4px;
+  font-size: 1.3em;
+  background: linear-gradient(180deg, #f6dc9c, var(--gold-deep));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: none;
+  filter: drop-shadow(0 2px 3px rgba(150, 100, 30, 0.25));
+}
+
+.card__divider {
+  margin: 8px 0 18px;
+  color: var(--gold-deep);
+  letter-spacing: .5em;
+  font-size: .9rem;
+}
+
+/* Lời chúc (hiệu ứng đánh máy) */
+.card__wish {
+  font-size: clamp(.98rem, 3.8vw, 1.06rem);
+  line-height: 1.8;
+  font-weight: 400;
+  text-align: left;
+  white-space: pre-line;
+}
+/* Con trỏ nhấp nháy khi đang đánh máy */
+.caret {
+  display: inline-block;
+  width: 2px;
+  height: 1.1em;
+  margin-left: 2px;
+  vertical-align: -0.15em;
+  background: var(--rose);
+  animation: blink .8s steps(1) infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+
+/* =========================================================
+   4. NÚT "MỞ QUÀ"
+   ========================================================= */
+.gift-btn {
+  margin-top: 26px;
+  padding: 14px 34px;
+  font: 600 1.05rem var(--font-body);
+  color: var(--white);
+  background: linear-gradient(135deg, #f0698d, var(--rose-deep));
+  border: 2px solid rgba(233, 199, 123, 0.9);
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 8px 22px rgba(199, 44, 88, 0.35);
+  transition: transform .2s ease, box-shadow .2s ease;
+  animation: pulse 2.2s ease-in-out infinite;
+}
+.gift-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(199, 44, 88, 0.45); }
+.gift-btn:active { transform: scale(.96); }
+.gift-btn:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+.gift-btn.opened { animation: none; }
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 8px 22px rgba(199, 44, 88, 0.35), 0 0 0 0 rgba(232, 71, 111, 0.45); }
+  50%      { box-shadow: 0 8px 22px rgba(199, 44, 88, 0.35), 0 0 0 12px rgba(232, 71, 111, 0); }
+}
+
+/* =========================================================
+   5. LỜI NHẮN BÍ MẬT
+   ========================================================= */
+.secret {
+  display: none;
+  margin-top: 22px;
+  padding: 18px 20px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px dashed var(--gold-deep);
+  border-radius: 20px;
+}
+.secret.show {
+  display: block;
+  animation: secret-in .7s cubic-bezier(.2, .9, .3, 1.3) both;
+}
+.secret__label {
+  font-family: var(--font-script);
+  font-size: 1.5rem;
+  color: var(--rose);
+}
+.secret__text {
+  margin-top: 6px;
+  line-height: 1.75;
+  font-style: italic;
+}
+@keyframes secret-in {
+  from { opacity: 0; transform: scale(.85) translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Bó hoa ly */
+.bouquet { margin: 0 auto 14px; }
+.bouquet svg {
+  display: block;
+  width: min(240px, 75%);
+  height: auto;
+  margin: 0 auto;
+  overflow: visible;
+  transform-origin: 50% 90%;
+  animation: sway 5s ease-in-out 1.8s infinite;
+  filter: drop-shadow(0 10px 16px rgba(199, 44, 88, 0.25));
+}
+.bouquet__caption {
+  margin-top: 8px;
+  font-size: .9rem;
+  color: var(--rose-deep);
+}
+/* Từng bông hoa nở dần (thứ tự theo biến --d trong index.html) */
+.bloom {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.secret.show .bloom {
+  animation: bloom .9s cubic-bezier(.2, .9, .3, 1.3) var(--d, 0s) both;
+}
+@keyframes bloom {
+  from { opacity: 0; transform: scale(0) rotate(-40deg); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes sway {
+  0%, 100% { transform: rotate(-2deg); }
+  50%      { transform: rotate(2deg); }
+}
+
+/* Chữ ký người gửi */
+.card__from {
+  margin-top: 28px;
+  text-align: right;
+  font-size: .95rem;
+  opacity: .9;
+}
+.card__sign {
+  font-family: var(--font-script);
+  font-size: 2rem;
+  color: var(--rose-deep);
+}
+
+/* =========================================================
+   6. CÁNH HOA & TRÁI TIM RƠI
+   ========================================================= */
+.petals {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+.petal {
+  position: absolute;
+  top: -40px;
+  left: var(--x);
+  width: var(--size);
+  height: var(--size);
+  opacity: .85;
+  animation: fall var(--dur) linear var(--delay) infinite;
+  will-change: transform;
+}
+/* Cánh hoa hồng: bo hai góc chéo */
+.petal--leaf {
+  background: linear-gradient(135deg, #ffd1df, #f27b9b);
+  border-radius: 150% 0 150% 0;
+  box-shadow: inset -2px -2px 4px rgba(199, 44, 88, 0.25);
+}
+/* Trái tim */
+.petal--heart {
+  width: auto;
+  height: auto;
+  font-size: var(--size);
+  line-height: 1;
+  color: var(--c, #f06b8f);
+}
+@keyframes fall {
+  0%   { transform: translate3d(0, -5vh, 0) rotate(0deg); }
+  25%  { transform: translate3d(var(--sway), 25vh, 0) rotate(90deg); }
+  50%  { transform: translate3d(0, 55vh, 0) rotate(180deg); }
+  75%  { transform: translate3d(calc(var(--sway) * -1), 80vh, 0) rotate(270deg); }
+  100% { transform: translate3d(0, 110vh, 0) rotate(360deg); }
+}
+
+/* Canvas pháo hoa phủ toàn màn hình, không chặn thao tác */
+.fireworks {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* =========================================================
+   7. NÚT NHẠC NỔI + TÊN BÀI CHẠY CHỮ
+   ========================================================= */
+.music {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(18px, env(safe-area-inset-bottom));
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.music__title {
+  width: 140px;
+  overflow: hidden;
+  padding: 6px 0;
+  font-size: .8rem;
+  color: var(--rose-deep);
+  background: rgba(255, 255, 255, 0.55);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 999px;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
+}
+.music__marquee {
+  display: inline-block;
+  padding-left: 100%;
+  white-space: nowrap;
+  animation: marquee 9s linear infinite;
+}
+@keyframes marquee { to { transform: translateX(-100%); } }
+
+.music__btn {
+  width: 56px;
+  height: 56px;
+  padding: 4px;
+  border: 2px solid var(--gold);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 6px 18px rgba(199, 44, 88, 0.3);
+  cursor: pointer;
+}
+.music__btn:focus-visible { outline: 3px solid var(--rose); outline-offset: 3px; }
+.music__disc {
+  display: block;
+  width: 100%;
+  height: 100%;
+  animation: spin 4s linear infinite;
+  animation-play-state: paused;   /* dừng khi chưa phát */
+  opacity: .75;
+  transition: opacity .3s;
+}
+.music.playing .music__disc { animation-play-state: running; opacity: 1; }
+/* Chưa có file nhạc thì làm mờ nút */
+.music.missing { opacity: .55; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* =========================================================
+   8. ĐIỆN THOẠI NHỎ
+   ========================================================= */
+@media (max-width: 380px) {
+  .card { border-radius: 26px; }
+  .music__title { width: 112px; }
+}
+
+/* =========================================================
+   9. GIẢM CHUYỂN ĐỘNG (người dùng bật "Reduce motion")
+   ========================================================= */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+  .petals, .caret { display: none; }
+  .bloom, .bouquet svg { animation-delay: 0s !important; }
+  .music__marquee { padding-left: 0; animation: none !important; }
+  .music__title { -webkit-mask-image: none; mask-image: none; text-align: center; }
+}
